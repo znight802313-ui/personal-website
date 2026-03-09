@@ -1,0 +1,16 @@
+// 生成的网站素材
+export const generatedAssets = {
+  homeBackground: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/8701e83830ff446299b7259c81f8843b~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=0RcOnivcag0u32GCwSFG88mT39M%3D&format=.jpeg',
+  polaroidFrame: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/9b0ed7793a35468d99f5621a3cef8b84~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=SRACfHxF7rE5pQewlT3x4tRCLFU%3D&format=.jpeg',
+  road214Scenery: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/0c5ae8f9a0954b22a9bee87caa528243~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=2UozyNXJjS3P%2FDL7ube3Xt4m%2BMg%3D&format=.jpeg',
+  blackNeckedCrane: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/d2e311e88df540b09315bdc14320c62d~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=ftPHck8hsYr0gZ7EpKIWT1Y7kHE%3D&format=.jpeg',
+  handmadePottery: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/0fa2e52e92574fd8b164b315ea53afad~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=mv0shMeKjXu2pSmWnr8PDpyLWiQ%3D&format=.jpeg',
+  wildGrassDecor: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/e5d6368e7c95404a99529bb2634385d5~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=EJjlqHOtfOhiMHqQsUc5IBpbYes%3D&format=.jpeg',
+  starsDecor: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/81dcfdb22c4041149b290466ddb86e30~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=ZQkxjmdiFZ1%2FVuqUOy61hoMUyLk%3D&format=.jpeg',
+  articleLifeCover: 'https://p19-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/2726c47fcda24686833b43a91bec2d6b~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=3Bd%2FBmUe64sWS71XNMoZL%2Bfeq5Q%3D&format=.jpeg',
+  articleTechCover: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/afccaece8a0d4da7947c03d86eaf97f8~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=MOG5itIQMrereRPeg7StonS%2FFjU%3D&format=.jpeg',
+  portfolioWall: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/d6e571682c79439b892c0c491af936b0~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=slfsm0MUJpvEhBfEQ2QQgoCyqiA%3D&format=.jpeg',
+  snowMountain: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/1ea09b58881c41cca000d520887f1a3e~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=afjUQXPmEblJCQJihg49V%2BNYRZo%3D&format=.jpeg',
+  campingTent: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/d152aee55c8f44ac8dc8f5b39bb2dff9~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=NNTIoNxBUVcHczi6t4G5cczRqiM%3D&format=.jpeg',
+  vinylRecord: 'https://p16-dreamina-sign-sg.ibyteimg.com/tos-alisg-i-wopfjsm1ax-sg/636bf0022013420b92de614fd61c5c0a~tplv-wopfjsm1ax-aigc_resize:0:0.jpeg?lk3s=43402efa&x-expires=1774224000&x-signature=SpPdH%2F7JEI6ASN%2Bgq9vbBcMD3R4%3D&format=.jpeg',
+};

@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=M+PLUS+Rounded+1c:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream font-rounded text-earthBrown;
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16,4 Q16,4 18,8 Q22,8 20,12 Q24,14 20,16 Q20,20 16,18 Q14,22 12,18 Q8,20 10,16 Q6,14 10,12 Q8,8 12,8 Q14,4 16,4 Z' fill='%23F4A261' opacity='0.8' stroke='%23E76F51' stroke-width='1.5'/%3E%3C/svg%3E") 16 16, auto;
+  }
+
+  /* 所有可交互元素的光标 - 手绘心形 */
+  a, button, [role="button"], .cursor-pointer,
+  input[type="button"], input[type="submit"], input[type="reset"],
+  select, label[for], summary, [onclick], [tabindex]:not([tabindex="-1"]) {
+    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16,28 Q8,20 6,14 Q4,8 8,6 Q12,4 16,10 Q20,4 24,6 Q28,8 26,14 Q24,20 16,28 Z' fill='%23E76F51' opacity='0.85' stroke='%23F4A261' stroke-width='1.5'/%3E%3C/svg%3E") 16 16, pointer !important;
+  }
+
+  /* 覆盖所有可能的 pointer 光标 */
+  * {
+    cursor: inherit;
+  }
+}
+
+@layer components {
+  .handdrawn-border {
+    position: relative;
+  }
+
+  .handdrawn-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    filter: url(#rough);
+  }
+
+  .polaroid-frame {
+    background: white;
+    padding: 12px 12px 40px 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    transform: rotate(-2deg);
+    transition: transform 0.3s ease;
+  }
+
+  .polaroid-frame:hover {
+    transform: rotate(0deg) scale(1.05);
+  }
+
+  .sticky-note {
+    background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%);
+    padding: 1rem;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+    position: relative;
+  }
+
+  .sticky-note::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 20px 20px 0;
+    border-color: transparent #f59e0b transparent transparent;
+  }
+
+  /* 噪点质感叠加层 */
+  .noise-overlay {
+    position: relative;
+  }
+  
+  .noise-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.15;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+}
+
+/* 手绘 SVG 滤镜 */
+svg#filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
