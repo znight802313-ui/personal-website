@@ -1,9 +1,6 @@
 import { motion } from 'framer-motion'
 
 export default function InteractiveTags({
-  hasEntered,
-  randomPositions,
-  ScatteredElement,
   tagHovered,
   setTagHovered,
   playSound
@@ -16,22 +13,21 @@ export default function InteractiveTags({
       transition={{ delay: 0.9 }}
     >
       {/* 农药深度中毒 */}
-      <ScatteredElement randomPos={randomPositions.tag1} delay={0.65} hasEntered={hasEntered}>
-        <motion.div
-          className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-visible shadow-lg"
-          style={{
-            boxShadow: '0 4px 15px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-          }}
-          whileHover={{
-            scale: 1.1,
-            boxShadow: '0 8px 25px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-          }}
-          onHoverStart={() => {
-            setTagHovered('game')
-            playSound('game')
-          }}
-          onHoverEnd={() => setTagHovered(null)}
-        >
+      <motion.div
+        className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-visible shadow-lg"
+        style={{
+          boxShadow: '0 4px 15px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+        }}
+        whileHover={{
+          scale: 1.1,
+          boxShadow: '0 8px 25px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+        }}
+        onHoverStart={() => {
+          setTagHovered('game')
+          playSound('game')
+        }}
+        onHoverEnd={() => setTagHovered(null)}
+      >
         <span style={{ imageRendering: tagHovered === 'game' ? 'pixelated' : 'auto' }}>农药深度中毒</span>
         {tagHovered === 'game' && (
           <>
@@ -62,25 +58,23 @@ export default function InteractiveTags({
           </>
         )}
       </motion.div>
-      </ScatteredElement>
 
       {/* 公路漫游者 */}
-      <ScatteredElement randomPos={randomPositions.tag2} delay={0.7} hasEntered={hasEntered}>
-        <motion.div
-          className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-hidden shadow-lg"
-          style={{
-            boxShadow: '0 4px 15px rgba(139, 115, 85, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-          }}
-          whileHover={{
-            scale: 1.1,
-            boxShadow: '0 8px 25px rgba(139, 115, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-          }}
-          onHoverStart={() => {
-            setTagHovered('road')
-            playSound('road')
-          }}
-          onHoverEnd={() => setTagHovered(null)}
-        >
+      <motion.div
+        className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-hidden shadow-lg"
+        style={{
+          boxShadow: '0 4px 15px rgba(139, 115, 85, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+        }}
+        whileHover={{
+          scale: 1.1,
+          boxShadow: '0 8px 25px rgba(139, 115, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+        }}
+        onHoverStart={() => {
+          setTagHovered('road')
+          playSound('road')
+        }}
+        onHoverEnd={() => setTagHovered(null)}
+      >
         {tagHovered === 'road' && (
           <>
             {/* 公路主体 - 深色路面 */}
@@ -173,32 +167,30 @@ export default function InteractiveTags({
         )}
         <span className="relative z-10">公路漫游者</span>
       </motion.div>
-      </ScatteredElement>
 
       {/* 光影捕手 */}
-      <ScatteredElement randomPos={randomPositions.tag3} delay={0.75} hasEntered={hasEntered}>
-        <motion.div
-          className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-hidden shadow-lg"
-          style={{
-            boxShadow: '0 4px 15px rgba(139, 115, 85, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-          }}
-          whileHover={{
-            scale: 1.1,
-            boxShadow: '0 8px 25px rgba(139, 115, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-          }}
-          onHoverStart={() => {
-            setTagHovered('photo')
-            playSound('photo')
-          }}
-          onHoverEnd={() => setTagHovered(null)}
-          animate={tagHovered === 'photo' ? {
-            borderColor: ['rgba(255,255,255,0.7)', 'rgba(139,115,85,0.8)', 'rgba(255,255,255,0.7)']
-          } : {}}
-          transition={{
-            duration: 0.5,
-            repeat: tagHovered === 'photo' ? Infinity : 0
-          }}
-        >
+      <motion.div
+        className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-hidden shadow-lg"
+        style={{
+          boxShadow: '0 4px 15px rgba(139, 115, 85, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+        }}
+        whileHover={{
+          scale: 1.1,
+          boxShadow: '0 8px 25px rgba(139, 115, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+        }}
+        onHoverStart={() => {
+          setTagHovered('photo')
+          playSound('photo')
+        }}
+        onHoverEnd={() => setTagHovered(null)}
+        animate={tagHovered === 'photo' ? {
+          borderColor: ['rgba(255,255,255,0.7)', 'rgba(139,115,85,0.8)', 'rgba(255,255,255,0.7)']
+        } : {}}
+        transition={{
+          duration: 0.5,
+          repeat: tagHovered === 'photo' ? Infinity : 0
+        }}
+      >
         光影捕手
         {tagHovered === 'photo' && (
           <>
@@ -210,33 +202,31 @@ export default function InteractiveTags({
           </>
         )}
       </motion.div>
-      </ScatteredElement>
 
       {/* 无辣不欢 */}
-      <ScatteredElement randomPos={randomPositions.tag4} delay={0.8} hasEntered={hasEntered}>
-        <motion.div
-          className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-visible shadow-lg"
-          style={{
-            boxShadow: '0 4px 15px rgba(255, 107, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-          }}
-          whileHover={{
-            scale: 1.1,
-            boxShadow: '0 8px 25px rgba(255, 107, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-          }}
-          onHoverStart={() => {
-            setTagHovered('spicy')
-            playSound('spicy')
-          }}
-          onHoverEnd={() => setTagHovered(null)}
-          animate={tagHovered === 'spicy' ? {
-            x: [0, -2, 2, -2, 2, 0]
-          } : {}}
-          transition={{
-            duration: 0.3,
-            repeat: tagHovered === 'spicy' ? Infinity : 0,
-            repeatDelay: 0.1
-          }}
-        >
+      <motion.div
+        className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-white/70 text-sm font-handwriting text-earthBrown/90 cursor-pointer relative overflow-visible shadow-lg"
+        style={{
+          boxShadow: '0 4px 15px rgba(255, 107, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+        }}
+        whileHover={{
+          scale: 1.1,
+          boxShadow: '0 8px 25px rgba(255, 107, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+        }}
+        onHoverStart={() => {
+          setTagHovered('spicy')
+          playSound('spicy')
+        }}
+        onHoverEnd={() => setTagHovered(null)}
+        animate={tagHovered === 'spicy' ? {
+          x: [0, -2, 2, -2, 2, 0]
+        } : {}}
+        transition={{
+          duration: 0.3,
+          repeat: tagHovered === 'spicy' ? Infinity : 0,
+          repeatDelay: 0.1
+        }}
+      >
         无辣不欢
         {tagHovered === 'spicy' && (
           <>
@@ -288,7 +278,6 @@ export default function InteractiveTags({
           </>
         )}
       </motion.div>
-      </ScatteredElement>
     </motion.div>
   )
 }

@@ -1,54 +1,81 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useCallback } from 'react'
 
 export default function MouseTrail() {
-  const [trails, setTrails] = useState([])
+  const canvasRef = useRef(null)
+  const trailsRef = useRef([])
+  const rafRef = useRef(null)
+  const mouseRef = useRef({ x: 0, y: 0, moved: false })
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      const newTrail = {
-        id: Date.now(),
-        x: e.clientX,
-        y: e.clientY,
-      }
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    const now = Date.now()
 
-      setTrails((prev) => [...prev.slice(-8), newTrail])
+    // 添加新的 trail 点（如果鼠标移动了）
+    if (mouseRef.current.moved) {
+      trailsRef.current.push({
+        x: mouseRef.current.x,
+        y: mouseRef.current.y,
+        born: now,
+      })
+      mouseRef.current.moved = false
     }
 
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+    // 清除过期的点（800ms 生命周期）
+    trailsRef.current = trailsRef.current.filter(t => now - t.born < 800)
+
+    // 清空画布
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // 绘制每个 trail 点
+    for (const trail of trailsRef.current) {
+      const age = (now - trail.born) / 800 // 0 → 1
+      const opacity = 0.6 * (1 - age)
+      const radius = 6 * (1 - age)
+      if (opacity <= 0 || radius <= 0) continue
+
+      ctx.beginPath()
+      ctx.arc(trail.x, trail.y, radius, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(255, 155, 113, ${opacity})`
+      ctx.fill()
+    }
+
+    rafRef.current = requestAnimationFrame(draw)
   }, [])
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTrails((prev) => prev.slice(1))
-    }, 100)
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    return () => clearInterval(timer)
-  }, [])
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    const handleMouseMove = (e) => {
+      mouseRef.current.x = e.clientX
+      mouseRef.current.y = e.clientY
+      mouseRef.current.moved = true
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+
+    rafRef.current = requestAnimationFrame(draw)
+
+    return () => {
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('mousemove', handleMouseMove)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [draw])
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50">
-      {trails.map((trail) => (
-        <motion.div
-          key={trail.id}
-          className="absolute w-3 h-3 rounded-full bg-warmOrange/30"
-          style={{
-            left: trail.x,
-            top: trail.y,
-            filter: 'blur(2px)',
-          }}
-          initial={{ scale: 1, opacity: 0.6 }}
-          animate={{
-            scale: 0,
-            opacity: 0,
-          }}
-          transition={{
-            duration: 0.8,
-            ease: 'easeOut',
-          }}
-        />
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-50"
+      style={{ width: '100vw', height: '100vh' }}
+    />
   )
 }

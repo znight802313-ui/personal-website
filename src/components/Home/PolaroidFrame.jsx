@@ -1,9 +1,6 @@
 import { motion } from 'framer-motion'
 
 export default function PolaroidFrame({
-  hasEntered,
-  randomPos,
-  ScatteredElement,
   imageHovered,
   setImageHovered,
   showVideo,
@@ -13,8 +10,7 @@ export default function PolaroidFrame({
   profileVideo
 }) {
   return (
-    <ScatteredElement randomPos={randomPos} delay={0.85} hasEntered={hasEntered}>
-      <motion.div
+    <motion.div
         className="flex justify-center"
         initial={{ x: 50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -29,27 +25,22 @@ export default function PolaroidFrame({
           y: -20,
           rotate: 5,
           scale: 1.08,
-          boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(244, 162, 97, 0.4)'
         }}
         whileTap={{ scale: 0.98 }}
         style={{
           filter: 'url(#rough)',
+          willChange: 'transform',
           cursor: 'url("data:image/svg+xml,%3Csvg width=\'32\' height=\'32\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M16,28 Q8,20 6,14 Q4,8 8,6 Q12,4 16,10 Q20,4 24,6 Q28,8 26,14 Q24,20 16,28 Z\' fill=\'%23E76F51\' opacity=\'0.85\' stroke=\'%23F4A261\' stroke-width=\'1.5\'/%3E%3C/svg%3E") 16 16, pointer',
           boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(244, 162, 97, 0.2)',
         }}
-        animate={{
-          boxShadow: [
-            '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(244, 162, 97, 0.2)',
-            '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 30px rgba(244, 162, 97, 0.4)',
-            '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(244, 162, 97, 0.2)',
-          ]
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
       >
+        {/* 光晕层 - 用 opacity 替代 boxShadow 动画 */}
+        <motion.div
+          className="absolute inset-0 rounded-sm pointer-events-none"
+          style={{ boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 30px rgba(244, 162, 97, 0.4)' }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
         {/* 拍立得相框背景 */}
         <div className="w-80 h-96 relative overflow-hidden rounded-sm">
           {!showVideo ? (
@@ -81,20 +72,20 @@ export default function PolaroidFrame({
         {/* 手绘胶带装饰 */}
         <motion.div
           className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-8 bg-warmOrange/30 rotate-3"
-          style={{ filter: 'url(#rough)' }}
+          style={{ filter: 'url(#rough)', willChange: 'transform' }}
           animate={{ rotate: imageHovered ? -3 : 3 }}
         />
 
-        {/* 悬停时的星星装饰 - 增强版 */}
+        {/* 悬停时的星星装饰 */}
         {imageHovered && (
           <>
-            {[...Array(16)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <motion.span
                 key={i}
                 className="absolute text-3xl"
                 style={{
-                  left: `${5 + (i % 4) * 30}%`,
-                  top: `${5 + Math.floor(i / 4) * 30}%`,
+                  left: `${10 + (i % 3) * 35}%`,
+                  top: `${5 + Math.floor(i / 3) * 30}%`,
                   filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 20px rgba(244, 162, 97, 0.6))',
                 }}
                 initial={{ scale: 0, rotate: 0, opacity: 0 }}
@@ -104,7 +95,7 @@ export default function PolaroidFrame({
                   opacity: [0, 1, 0.9]
                 }}
                 transition={{
-                  delay: i * 0.05,
+                  delay: i * 0.08,
                   duration: 0.8,
                   ease: "easeOut"
                 }}
@@ -122,7 +113,7 @@ export default function PolaroidFrame({
               <div className="w-64 h-64 rounded-full bg-gradient-radial from-warmOrange/40 via-sageGreen/20 to-transparent blur-3xl" />
             </motion.div>
             {/* 环绕光环 */}
-            {[...Array(3)].map((_, i) => (
+            {[...Array(2)].map((_, i) => (
               <motion.div
                 key={`ring-${i}`}
                 className="absolute inset-0 rounded-sm"
@@ -146,6 +137,5 @@ export default function PolaroidFrame({
         )}
       </motion.div>
     </motion.div>
-    </ScatteredElement>
   )
 }

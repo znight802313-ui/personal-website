@@ -1,44 +1,31 @@
 import { motion, useMotionValue, AnimatePresence } from 'framer-motion'
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { generatedAssets } from '../assets/generatedAssets'
-import profilePhoto from '../assets/images/小王子风格照片.png'
+import profilePhoto from '../assets/images/小王子风格照片.jpg'
 
 // 导入音效文件
-import gameSound from '../assets/sounds/game.wav'
+import gameSound from '../assets/sounds/game.mp3'
 import roadSound from '../assets/sounds/road.mp3'
 import photoSound from '../assets/sounds/photo.mp3'
-import spicySound from '../assets/sounds/spicy.wav'
+import spicySound from '../assets/sounds/spicy.mp3'
 
-// 导入视频文件
-import profileVideo from '../assets/videos/profile.mp4'
+// 视频使用动态 URL（避免 Vite 构建时处理 12MB 文件）
+const profileVideo = new URL('../assets/videos/profile.mp4', import.meta.url).href
 
 // 导入拆分的组件
-import { ScatteredElement } from '../components/Home/AnimElements'
 import BackgroundEffects from '../components/Home/BackgroundEffects'
 import InteractiveTags from '../components/Home/InteractiveTags'
 import PolaroidFrame from '../components/Home/PolaroidFrame'
-import AudioController from '../components/Home/AudioController'
 
-export default function Home({ hasEnteredFromParent = false, onEnter }) {
-  // 入场动画状态 - 使用父组件传入的状态
-  const [hasEntered, setHasEntered] = useState(hasEnteredFromParent)
-  const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 })
-
-  // 当父组件状态变化时同步
-  useEffect(() => {
-    setHasEntered(hasEnteredFromParent)
-  }, [hasEnteredFromParent])
-
+export default function Home({ volume, setVolume }) {
   const [imageHovered, setImageHovered] = useState(false)
   const [tagHovered, setTagHovered] = useState(null)
   const [storyRevealed, setStoryRevealed] = useState(true)
   const [displayedText, setDisplayedText] = useState('')
+  const [typingDone, setTypingDone] = useState(false)
   const [roseHovered, setRoseHovered] = useState(false)
   const [sunsetHovered, setSunsetHovered] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
-  const [volume, setVolume] = useState(0.5)
-  const [previousVolume, setPreviousVolume] = useState(0.5)
-  const [showVolumeControl, setShowVolumeControl] = useState(false)
 
   // 页面特效状态
   const [roseMode, setRoseMode] = useState(false)
@@ -46,81 +33,19 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
   const [starMode, setStarMode] = useState(false)
 
   const videoRef = useRef(null)
-  const hideTimeoutRef = useRef(null)
 
   // 创建音频对象引用
-  const audioRefs = useRef({
-    game: null,
-    road: null,
-    photo: null,
-    spicy: null
+  const audioRefs = useRef({})
+
+  // 音频源映射
+  const audioSources = useRef({
+    game: gameSound,
+    road: roadSound,
+    photo: photoSound,
+    spicy: spicySound
   })
 
-  // 生成随机初始位置（只计算一次）
-  const randomPositions = useMemo(() => ({
-    // 左侧文本框
-    textBox: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-
-    // 标题文字
-    welcome1: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    welcome2: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    welcome3: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    title1: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    title2: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    titleStar: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 360 },
-
-    // 标签
-    infp: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    pisces: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-
-    // 驯养之旅
-    rose: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    sunset: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    star: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-
-    // 个性标签
-    tag1: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    tag2: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    tag3: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-    tag4: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-
-    // 照片
-    photo: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10, rotate: Math.random() * 60 - 30 },
-  }), [])
-
-  // 页面点击处理
-  const handlePageClick = (e) => {
-    if (!hasEntered) {
-      setClickPosition({ x: e.clientX, y: e.clientY })
-      setHasEntered(true)
-
-      // 通知父组件
-      if (onEnter) {
-        onEnter()
-      }
-
-      // 播放音效
-      if (audioRefs.current.game) {
-        audioRefs.current.game.currentTime = 0
-        audioRefs.current.game.play()
-      }
-    }
-  }
-
-  // 初始化音频对象
-  useEffect(() => {
-    audioRefs.current.game = new Audio(gameSound)
-    audioRefs.current.road = new Audio(roadSound)
-    audioRefs.current.photo = new Audio(photoSound)
-    audioRefs.current.spicy = new Audio(spicySound)
-
-    // 设置音量
-    Object.values(audioRefs.current).forEach(audio => {
-      if (audio) audio.volume = volume
-    })
-  }, [])
-
-  // 更新所有音频和视频的音量
+  // 更新已加载音频的音量
   useEffect(() => {
     Object.values(audioRefs.current).forEach(audio => {
       if (audio) audio.volume = volume
@@ -130,45 +55,45 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
     }
   }, [volume])
 
-  // 处理音量控制面板的显示/隐藏
-  const handleVolumeControlEnter = () => {
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current)
-      hideTimeoutRef.current = null
+  // 音频上下文解锁状态
+  const audioUnlocked = useRef(false)
+
+  // 用户首次点击页面时解锁音频上下文
+  useEffect(() => {
+    const unlock = () => {
+      if (audioUnlocked.current) return
+      audioUnlocked.current = true
+      // 创建一个静默的 AudioContext 来解锁浏览器音频策略
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      ctx.resume().then(() => ctx.close())
+      document.removeEventListener('click', unlock)
+      document.removeEventListener('touchstart', unlock)
+      document.removeEventListener('keydown', unlock)
     }
-    setShowVolumeControl(true)
-  }
-
-  const handleVolumeControlLeave = () => {
-    hideTimeoutRef.current = setTimeout(() => {
-      setShowVolumeControl(false)
-    }, 1000)
-  }
-
-  // 切换静音
-  const toggleMute = () => {
-    if (volume > 0) {
-      setPreviousVolume(volume)
-      setVolume(0)
-    } else {
-      setVolume(previousVolume > 0 ? previousVolume : 0.5)
+    document.addEventListener('click', unlock)
+    document.addEventListener('touchstart', unlock)
+    document.addEventListener('keydown', unlock)
+    return () => {
+      document.removeEventListener('click', unlock)
+      document.removeEventListener('touchstart', unlock)
+      document.removeEventListener('keydown', unlock)
     }
-  }
+  }, [])
 
-  // 音效播放函数
+  // 音效播放函数（懒加载：首次播放时才创建 Audio 对象）
   const playSound = (type) => {
+    if (!audioUnlocked.current) return
     try {
-      const audio = audioRefs.current[type]
-      if (audio) {
-        // 重置播放位置
-        audio.currentTime = 0
-        audio.play().catch(error => {
-          console.log('音效播放失败:', error)
-        })
+      if (!audioRefs.current[type]) {
+        const src = audioSources.current[type]
+        if (!src) return
+        audioRefs.current[type] = new Audio(src)
+        audioRefs.current[type].volume = volume
       }
-    } catch (error) {
-      console.log('音效播放失败:', error)
-    }
+      const audio = audioRefs.current[type]
+      audio.currentTime = 0
+      audio.play().catch(() => {})
+    } catch (_) {}
   }
 
   // 鼠标位置追踪
@@ -185,6 +110,7 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
 
   useEffect(() => {
     if (storyRevealed) {
+      setTypingDone(false)
       let index = 0
       const timer = setInterval(() => {
         if (index <= fullStory.length) {
@@ -192,17 +118,18 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
           index++
         } else {
           clearInterval(timer)
+          setTypingDone(true)
         }
       }, 80)
       return () => clearInterval(timer)
     } else {
       setDisplayedText('')
+      setTypingDone(false)
     }
   }, [storyRevealed])
 
   // 鼠标移动处理
   const handleMouseMove = (e) => {
-    // Global mouse tracking
     mouseX.set(e.clientX)
     mouseY.set(e.clientY)
   }
@@ -210,44 +137,23 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-8 pt-32 pb-16 relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${generatedAssets.homeBackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-        cursor: !hasEntered ? 'pointer' : 'default'
-      }}
-      onClick={handlePageClick}
       onMouseMove={handleMouseMove}
     >
-      <BackgroundEffects 
-        hasEntered={hasEntered} 
-        sunsetMode={sunsetMode} 
-        roseMode={roseMode} 
+      {/* 固定背景层 - 独立图层避免滚动重绘 */}
+      <div
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: `url(${generatedAssets.homeBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          willChange: 'transform',
+        }}
+      />
+      <BackgroundEffects
+        sunsetMode={sunsetMode}
+        roseMode={roseMode}
         starMode={starMode}
       />
-
-      {/* 点击波纹效果 */}
-      <AnimatePresence>
-        {hasEntered && (
-          <motion.div
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              left: clickPosition.x,
-              top: clickPosition.y,
-              width: '20px',
-              height: '20px',
-              x: '-50%',
-              y: '-50%',
-              border: '2px solid rgba(244, 162, 97, 0.8)',
-            }}
-            initial={{ scale: 0, opacity: 1 }}
-            animate={{ scale: 50, opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-          />
-        )}
-      </AnimatePresence>
 
       {/* 动态遮罩，用于文字 Spotlight 聚焦效果 */}
       <AnimatePresence>
@@ -279,15 +185,14 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
           className="grid md:grid-cols-2 gap-12 items-center"
         >
           {/* 左侧：介绍文字 - 微缩宇宙版 */}
-          <ScatteredElement randomPos={randomPositions.textBox} delay={0.05} hasEntered={hasEntered}>
-            <motion.div
-              className="relative"
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
+          <motion.div
+            className="relative"
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
             {/* 玻璃拟态背景 */}
-            <motion.div
+            <div
               className="absolute inset-0 rounded-3xl noise-overlay overflow-hidden"
               style={{
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%)',
@@ -295,19 +200,17 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                 border: '1px solid rgba(255, 255, 255, 0.3)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
               }}
-              animate={{
-                boxShadow: [
-                  '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                  '0 12px 48px rgba(244, 162, 97, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-                  '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                ]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
+            >
+              {/* 光晕层 - 用 opacity 动画替代 boxShadow 动画 */}
+              <motion.div
+                className="absolute inset-0 rounded-3xl pointer-events-none"
+                style={{
+                  boxShadow: '0 12px 48px rgba(244, 162, 97, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+                }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
 
             {/* 全局聚光灯 - 混合效果 */}
             <motion.div
@@ -326,7 +229,7 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
             />
 
             {/* 星星粒子 */}
-            {[...Array(20)].map((_, i) => (
+            {[...Array(10)].map((_, i) => (
               <motion.div
                 key={i}
                 className="absolute pointer-events-none text-xl z-0"
@@ -336,8 +239,8 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                   filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 1)) drop-shadow(0 0 15px rgba(244, 162, 97, 0.8))'
                 }}
                 animate={{
-                  x: Math.cos((i / 20) * Math.PI * 2) * 100,
-                  y: Math.sin((i / 20) * Math.PI * 2) * 100,
+                  x: Math.cos((i / 10) * Math.PI * 2) * 100,
+                  y: Math.sin((i / 10) * Math.PI * 2) * 100,
                   opacity: [0, 1, 0],
                   scale: [0, 1.5, 0],
                   rotate: [0, 360]
@@ -363,100 +266,88 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                 transition={{ delay: 0.5 }}
               >
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <ScatteredElement randomPos={randomPositions.welcome1} delay={0.1} hasEntered={hasEntered}>
-                    <motion.span
-                      className="font-handwriting text-4xl text-warmOrange"
-                      animate={hasEntered ? { rotate: [-2, 2, -2] } : {}}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      欢迎
-                    </motion.span>
-                  </ScatteredElement>
+                  <motion.span
+                    className="font-handwriting text-4xl text-warmOrange"
+                    animate={{ rotate: [-2, 2, -2] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    欢迎
+                  </motion.span>
 
-                  <ScatteredElement randomPos={randomPositions.welcome2} delay={0.15} hasEntered={hasEntered}>
-                    <motion.span
-                      className="font-handwriting text-3xl text-earthBrown/70"
-                      animate={hasEntered ? { y: [0, -5, 0] } : {}}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                    >
-                      来到
-                    </motion.span>
-                  </ScatteredElement>
+                  <motion.span
+                    className="font-handwriting text-3xl text-earthBrown/70"
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                  >
+                    来到
+                  </motion.span>
 
-                  <ScatteredElement randomPos={randomPositions.welcome3} delay={0.2} hasEntered={hasEntered}>
-                    <motion.span
-                      className="font-handwriting text-5xl text-sageGreen"
-                      animate={hasEntered ? { scale: [1, 1.05, 1] } : {}}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-                    >
-                      我的
-                    </motion.span>
-                  </ScatteredElement>
+                  <motion.span
+                    className="font-handwriting text-5xl text-sageGreen"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+                  >
+                    我的
+                  </motion.span>
                 </div>
 
                 <div className="flex items-center gap-3 mt-2">
-                  <ScatteredElement randomPos={randomPositions.title1} delay={0.25} hasEntered={hasEntered}>
+                  <motion.span
+                    className="font-handwriting text-6xl md:text-7xl text-warmOrange font-bold relative"
+                    animate={{
+                      rotate: [0, 1, 0, -1, 0],
+                      textShadow: [
+                        '2px 2px 0px rgba(139, 115, 85, 0.2)',
+                        '3px 3px 0px rgba(139, 115, 85, 0.3)',
+                        '2px 2px 0px rgba(139, 115, 85, 0.2)'
+                      ]
+                    }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    Z
                     <motion.span
-                      className="font-handwriting text-6xl md:text-7xl text-warmOrange font-bold relative"
-                      animate={hasEntered ? {
-                        rotate: [0, 1, 0, -1, 0],
-                        textShadow: [
-                          '2px 2px 0px rgba(139, 115, 85, 0.2)',
-                          '3px 3px 0px rgba(139, 115, 85, 0.3)',
-                          '2px 2px 0px rgba(139, 115, 85, 0.2)'
-                        ]
-                      } : {}}
-                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                      className="text-sageGreen"
+                      animate={{ color: ['#8B9D83', '#F4A261', '#8B9D83'] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      Z
-                      <motion.span
-                        className="text-sageGreen"
-                        animate={hasEntered ? { color: ['#8B9D83', '#F4A261', '#8B9D83'] } : {}}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                      >
-                        117
-                      </motion.span>
+                      117
                     </motion.span>
-                  </ScatteredElement>
+                  </motion.span>
 
-                  <ScatteredElement randomPos={randomPositions.title2} delay={0.3} hasEntered={hasEntered}>
-                    <motion.span
-                      className="font-handwriting text-5xl md:text-6xl text-sageGreen relative"
-                      style={{
-                        background: 'linear-gradient(135deg, #8B9D83 0%, #F4A261 50%, #E76F51 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                      }}
-                      animate={hasEntered ? {
-                        rotate: [-1, 1, -1],
-                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-                      } : {}}
-                      transition={{
-                        rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                        backgroundPosition: { duration: 6, repeat: Infinity, ease: "linear" }
-                      }}
-                    >
-                      星球
-                    </motion.span>
-                  </ScatteredElement>
+                  <motion.span
+                    className="font-handwriting text-5xl md:text-6xl text-sageGreen relative"
+                    style={{
+                      background: 'linear-gradient(135deg, #8B9D83 0%, #F4A261 50%, #E76F51 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                    animate={{
+                      rotate: [-1, 1, -1],
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                    }}
+                    transition={{
+                      rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                      backgroundPosition: { duration: 6, repeat: Infinity, ease: "linear" }
+                    }}
+                  >
+                    星球
+                  </motion.span>
 
-                  <ScatteredElement randomPos={randomPositions.titleStar} delay={0.35} hasEntered={hasEntered}>
-                    <motion.span
-                      className="text-4xl ml-10"
-                      animate={hasEntered ? {
-                        opacity: [1, 0.3, 1],
-                        scale: [1, 1.3, 1]
-                      } : {}}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      ✨
-                    </motion.span>
-                  </ScatteredElement>
+                  <motion.span
+                    className="text-4xl ml-10"
+                    animate={{
+                      opacity: [1, 0.3, 1],
+                      scale: [1, 1.3, 1]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    ✨
+                  </motion.span>
                 </div>
               </motion.div>
 
@@ -464,66 +355,51 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
               <div className="flex items-center gap-3 mb-6 flex-wrap relative">
                 <span className="text-base text-earthBrown/80">一个爱做梦的</span>
 
-                <ScatteredElement randomPos={randomPositions.infp} delay={0.4} hasEntered={hasEntered}>
-                  <motion.span
-                    className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-2xl font-handwriting text-xl text-warmOrange border border-white/60 shadow-xl cursor-pointer"
-                    style={{
-                      boxShadow: '0 4px 20px rgba(244, 162, 97, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                    }}
-                    animate={hasEntered ? {
-                      y: [0, -10, 0],
-                      boxShadow: [
-                        '0 4px 20px rgba(244, 162, 97, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                        '0 8px 30px rgba(244, 162, 97, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-                        '0 4px 20px rgba(244, 162, 97, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                      ]
-                    } : {}}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: 'easeInOut'
-                    }}
-                    whileHover={{
-                      scale: 1.15,
-                      x: 8,
-                      boxShadow: '0 12px 40px rgba(244, 162, 97, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.7)',
-                      transition: { duration: 0.2 }
-                    }}
-                  >
-                    INFP
-                  </motion.span>
-                </ScatteredElement>
+                <motion.span
+                  className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-2xl font-handwriting text-xl text-warmOrange border border-white/60 shadow-xl cursor-pointer relative"
+                  style={{
+                    boxShadow: '0 4px 20px rgba(244, 162, 97, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+                  }}
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  whileHover={{
+                    scale: 1.15,
+                    x: 8,
+                    transition: { duration: 0.2 }
+                  }}
+                >
+                  {/* 光晕层 */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl pointer-events-none"
+                    style={{ boxShadow: '0 8px 30px rgba(244, 162, 97, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6)' }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  INFP
+                </motion.span>
 
-                <ScatteredElement randomPos={randomPositions.pisces} delay={0.45} hasEntered={hasEntered}>
-                  <motion.span
-                    className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-2xl text-base text-earthBrown/90 border border-white/60 shadow-xl cursor-pointer ml-4"
-                    style={{
-                      boxShadow: '0 4px 20px rgba(139, 157, 131, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                    }}
-                    animate={hasEntered ? {
-                      y: [0, -12, 0],
-                      boxShadow: [
-                        '0 4px 20px rgba(139, 157, 131, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                        '0 8px 30px rgba(139, 157, 131, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-                        '0 4px 20px rgba(139, 157, 131, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                      ]
-                    } : {}}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                      delay: 0.5
-                    }}
-                    whileHover={{
-                      scale: 1.15,
-                      x: -8,
-                      boxShadow: '0 12px 40px rgba(139, 157, 131, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.7)',
-                      transition: { duration: 0.2 }
-                    }}
-                  >
-                    双鱼座 🐟
-                  </motion.span>
-                </ScatteredElement>
+                <motion.span
+                  className="px-4 py-2 bg-white/60 backdrop-blur-md rounded-2xl text-base text-earthBrown/90 border border-white/60 shadow-xl cursor-pointer ml-4 relative"
+                  style={{
+                    boxShadow: '0 4px 20px rgba(139, 157, 131, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+                  }}
+                  animate={{ y: [0, -12, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                  whileHover={{
+                    scale: 1.15,
+                    x: -8,
+                    transition: { duration: 0.2 }
+                  }}
+                >
+                  {/* 光晕层 */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl pointer-events-none"
+                    style={{ boxShadow: '0 8px 30px rgba(139, 157, 131, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6)' }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                  />
+                  双鱼座 🐟
+                </motion.span>
               </div>
 
               {/* 驯养之旅 */}
@@ -532,26 +408,25 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                   <span className="opacity-70">这里藏着我驯养的</span>
 
                   {/* 玫瑰 */}
-                  <ScatteredElement randomPos={randomPositions.rose} delay={0.5} hasEntered={hasEntered}>
-                    <motion.span
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-warmOrange/10 rounded-full text-sm cursor-pointer relative"
-                      whileHover={{ scale: 1.05 }}
-                      onHoverStart={() => setRoseHovered(true)}
-                      onHoverEnd={() => setRoseHovered(false)}
-                      onClick={() => setRoseMode(!roseMode)}
-                      animate={roseMode ? {
-                        boxShadow: [
-                          '0 0 0px rgba(231, 111, 81, 0)',
-                          '0 0 20px rgba(231, 111, 81, 0.8)',
-                          '0 0 0px rgba(231, 111, 81, 0)'
-                        ]
-                      } : {}}
-                      transition={{
-                        duration: 1.5,
-                        repeat: roseMode ? Infinity : 0,
-                        ease: 'easeInOut'
-                      }}
-                    >
+                  <motion.span
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-warmOrange/10 rounded-full text-sm cursor-pointer relative"
+                    whileHover={{ scale: 1.05 }}
+                    onHoverStart={() => setRoseHovered(true)}
+                    onHoverEnd={() => setRoseHovered(false)}
+                    onClick={() => setRoseMode(!roseMode)}
+                    animate={roseMode ? {
+                      boxShadow: [
+                        '0 0 0px rgba(231, 111, 81, 0)',
+                        '0 0 20px rgba(231, 111, 81, 0.8)',
+                        '0 0 0px rgba(231, 111, 81, 0)'
+                      ]
+                    } : {}}
+                    transition={{
+                      duration: 1.5,
+                      repeat: roseMode ? Infinity : 0,
+                      ease: 'easeInOut'
+                    }}
+                  >
                     🌹 <span className="font-semibold text-warmOrange">玫瑰</span>
                     {roseHovered && (
                       <>
@@ -595,61 +470,56 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                       </>
                     )}
                   </motion.span>
-                  </ScatteredElement>
 
                   {/* 日落 */}
-                  <ScatteredElement randomPos={randomPositions.sunset} delay={0.55} hasEntered={hasEntered}>
-                    <motion.span
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-sageGreen/10 rounded-full text-sm cursor-pointer"
-                      whileHover={{ scale: 1.05 }}
-                      onHoverStart={() => {
-                        setSunsetHovered(true)
-                        setSpotlightColor('rgba(244, 162, 97, 0.8)')
-                      }}
-                      onHoverEnd={() => {
-                        setSunsetHovered(false)
-                        setSpotlightColor('rgba(244, 162, 97, 0.3)')
-                      }}
-                      onClick={() => setSunsetMode(!sunsetMode)}
-                      animate={sunsetMode ? {
-                        boxShadow: [
-                          '0 0 0px rgba(244, 162, 97, 0)',
-                          '0 0 20px rgba(244, 162, 97, 0.8)',
-                          '0 0 0px rgba(244, 162, 97, 0)'
-                        ]
-                      } : {}}
-                      transition={{
-                        duration: 1.5,
-                        repeat: sunsetMode ? Infinity : 0,
-                        ease: 'easeInOut'
-                      }}
-                    >
+                  <motion.span
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-sageGreen/10 rounded-full text-sm cursor-pointer"
+                    whileHover={{ scale: 1.05 }}
+                    onHoverStart={() => {
+                      setSunsetHovered(true)
+                      setSpotlightColor('rgba(244, 162, 97, 0.8)')
+                    }}
+                    onHoverEnd={() => {
+                      setSunsetHovered(false)
+                      setSpotlightColor('rgba(244, 162, 97, 0.3)')
+                    }}
+                    onClick={() => setSunsetMode(!sunsetMode)}
+                    animate={sunsetMode ? {
+                      boxShadow: [
+                        '0 0 0px rgba(244, 162, 97, 0)',
+                        '0 0 20px rgba(244, 162, 97, 0.8)',
+                        '0 0 0px rgba(244, 162, 97, 0)'
+                      ]
+                    } : {}}
+                    transition={{
+                      duration: 1.5,
+                      repeat: sunsetMode ? Infinity : 0,
+                      ease: 'easeInOut'
+                    }}
+                  >
                     🌅 <span className="font-semibold text-sageGreen">日落</span>
                   </motion.span>
-                  </ScatteredElement>
 
                   {/* 星星 */}
-                  <ScatteredElement randomPos={randomPositions.star} delay={0.6} hasEntered={hasEntered}>
-                    <motion.span
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-warmOrange/10 rounded-full text-sm cursor-pointer relative"
-                      whileHover={{ scale: 1.05 }}
-                      onClick={() => setStarMode(!starMode)}
-                      animate={starMode ? {
-                        boxShadow: [
-                          '0 0 0px rgba(244, 162, 97, 0)',
-                          '0 0 20px rgba(244, 162, 97, 0.6)',
-                          '0 0 0px rgba(244, 162, 97, 0)'
-                        ]
-                      } : {}}
-                      transition={{
-                        duration: 1.5,
-                        repeat: starMode ? Infinity : 0,
-                        ease: 'easeInOut'
-                      }}
-                    >
+                  <motion.span
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-warmOrange/10 rounded-full text-sm cursor-pointer relative"
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => setStarMode(!starMode)}
+                    animate={starMode ? {
+                      boxShadow: [
+                        '0 0 0px rgba(244, 162, 97, 0)',
+                        '0 0 20px rgba(244, 162, 97, 0.6)',
+                        '0 0 0px rgba(244, 162, 97, 0)'
+                      ]
+                    } : {}}
+                    transition={{
+                      duration: 1.5,
+                      repeat: starMode ? Infinity : 0,
+                      ease: 'easeInOut'
+                    }}
+                  >
                     ⭐ <span className="font-semibold text-warmOrange">星星</span>
                   </motion.span>
-                  </ScatteredElement>
                 </div>
 
                 {/* 打字机效果展现故事 */}
@@ -658,8 +528,8 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                     <motion.div
                       className="mt-4 text-sm text-earthBrown/70 relative z-30 p-4 rounded-xl transition-all duration-300 cursor-pointer"
                       initial={{ opacity: 0, y: -10 }}
-                      animate={{ 
-                        opacity: 1, 
+                      animate={{
+                        opacity: 1,
                         y: 0,
                         backgroundColor: storyHovered ? 'rgba(255,255,255,0.7)' : 'transparent',
                         backdropFilter: storyHovered ? 'blur(10px)' : 'none',
@@ -672,11 +542,13 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
                     >
                       <span className="font-bold text-base text-warmOrange">"黎碎亦有星"</span>
                       {' '}—— {displayedText}
-                      <motion.span
-                        className="inline-block w-1 h-4 bg-warmOrange ml-1"
-                        animate={{ opacity: [1, 0, 1] }}
-                        transition={{ duration: 0.8, repeat: Infinity }}
-                      />
+                      {!typingDone && (
+                        <motion.span
+                          className="inline-block w-1 h-4 bg-warmOrange ml-1"
+                          animate={{ opacity: [1, 0, 1] }}
+                          transition={{ duration: 0.8, repeat: Infinity }}
+                        />
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -686,23 +558,16 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
               <div className="h-px bg-gradient-to-r from-transparent via-earthBrown/15 to-transparent my-6" />
 
               {/* 拆分出的互动标签组件 */}
-              <InteractiveTags 
-                hasEntered={hasEntered}
-                randomPositions={randomPositions}
-                ScatteredElement={ScatteredElement}
+              <InteractiveTags
                 tagHovered={tagHovered}
                 setTagHovered={setTagHovered}
                 playSound={playSound}
               />
             </div>
           </motion.div>
-          </ScatteredElement>
 
           {/* 拆分出的拍立得相框组件 */}
-          <PolaroidFrame 
-            hasEntered={hasEntered}
-            randomPos={randomPositions.photo}
-            ScatteredElement={ScatteredElement}
+          <PolaroidFrame
             imageHovered={imageHovered}
             setImageHovered={setImageHovered}
             showVideo={showVideo}
@@ -724,15 +589,6 @@ export default function Home({ hasEnteredFromParent = false, onEnter }) {
         />
       </motion.div>
 
-      {/* 拆分出的音量控制器组件 */}
-      <AudioController 
-        volume={volume}
-        setVolume={setVolume}
-        showVolumeControl={showVolumeControl}
-        handleVolumeControlEnter={handleVolumeControlEnter}
-        handleVolumeControlLeave={handleVolumeControlLeave}
-        toggleMute={toggleMute}
-      />
     </div>
   )
 }

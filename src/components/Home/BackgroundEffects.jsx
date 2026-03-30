@@ -1,9 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function BackgroundEffects({ 
-  hasEntered, 
-  sunsetMode, 
-  starMode, 
+export default function BackgroundEffects({
+  sunsetMode,
+  starMode,
   roseMode
 }) {
   return (
@@ -12,9 +11,7 @@ export default function BackgroundEffects({
       <motion.div
         className="absolute inset-0 backdrop-blur-sm pointer-events-none"
         animate={{
-          backgroundColor: !hasEntered
-            ? 'rgba(15, 23, 42, 0.7)'
-            : sunsetMode
+          backgroundColor: sunsetMode
             ? 'rgba(255, 140, 60, 0.25)'
             : starMode
             ? 'rgba(20, 30, 50, 0.4)'
@@ -22,7 +19,7 @@ export default function BackgroundEffects({
             ? 'rgba(255, 182, 193, 0.25)'
             : 'rgba(255, 255, 255, 0.1)'
         }}
-        transition={{ duration: hasEntered ? 2.5 : 0 }}
+        transition={{ duration: 2.5 }}
       />
 
       {/* 日落渐变天空 */}
@@ -143,9 +140,8 @@ export default function BackgroundEffects({
 
       {/* 背景装饰元素 - 小王子风格 */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* 装饰效果 - 只在入场后显示 */}
-        {hasEntered && (
-          <>
+        {/* 装饰效果 */}
+        <>
             {/* 落叶效果 */}
             {[...Array(sunsetMode ? 8 : 4)].map((_, i) => (
               <motion.div
@@ -442,7 +438,6 @@ export default function BackgroundEffects({
               </motion.div>
             ))}
           </>
-        )}
       </div>
     </>
   )

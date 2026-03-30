@@ -1,39 +1,44 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { lazy, Suspense, useState, useRef } from 'react'
 import Navigation from './components/Navigation'
 import Home from './pages/Home'
-import About from './pages/About'
-import Articles from './pages/Articles'
-import Portfolio from './pages/Portfolio'
-import ImageGeneratorTest from './pages/ImageGeneratorTest'
 import MouseTrail from './components/MouseTrail'
 import SVGFilters from './components/SVGFilters'
+import AudioController from './components/Home/AudioController'
+
+// 非首屏页面懒加载
+const About = lazy(() => import('./pages/About'))
+const Articles = lazy(() => import('./pages/Articles'))
+const Portfolio = lazy(() => import('./pages/Portfolio'))
+const ImageGeneratorTest = lazy(() => import('./pages/ImageGeneratorTest'))
 
 function AppContent() {
-  const location = useLocation()
-  const [hasEnteredHome, setHasEnteredHome] = useState(() => {
-    // 从 sessionStorage 读取状态
-    return sessionStorage.getItem('hasEnteredHome') === 'true'
-  })
+  // 全局音量状态
+  const [volume, setVolume] = useState(0.5)
+  const [previousVolume, setPreviousVolume] = useState(0.5)
+  const [showVolumeControl, setShowVolumeControl] = useState(false)
+  const hideTimeoutRef = useRef(null)
 
-  // 当路径变化时，如果不是首页，标记为已入场
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      setHasEnteredHome(true)
-      sessionStorage.setItem('hasEnteredHome', 'true')
+  const handleVolumeControlEnter = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current)
+      hideTimeoutRef.current = null
     }
-  }, [location.pathname])
-
-  const handleHomeEntered = () => {
-    setHasEnteredHome(true)
-    sessionStorage.setItem('hasEnteredHome', 'true')
+    setShowVolumeControl(true)
   }
 
-  const handleNavigate = () => {
-    // 导航时确保标记为已入场
-    if (!hasEnteredHome) {
-      setHasEnteredHome(true)
-      sessionStorage.setItem('hasEnteredHome', 'true')
+  const handleVolumeControlLeave = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setShowVolumeControl(false)
+    }, 1000)
+  }
+
+  const toggleMute = () => {
+    if (volume > 0) {
+      setPreviousVolume(volume)
+      setVolume(0)
+    } else {
+      setVolume(previousVolume > 0 ? previousVolume : 0.5)
     }
   }
 
@@ -42,33 +47,32 @@ function AppContent() {
       <SVGFilters />
       <MouseTrail />
       <div className="min-h-screen">
-        <Navigation
-          hasEntered={location.pathname !== '/' || hasEnteredHome}
-          onNavigate={handleNavigate}
-        />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Home
-                hasEnteredFromParent={hasEnteredHome}
-                onEnter={handleHomeEntered}
-              />
-            }
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="/articles" element={<Articles />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/image-test" element={<ImageGeneratorTest />} />
-        </Routes>
+        <Navigation />
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-earthBrown/50 font-handwriting text-xl">加载中...</div>}>
+          <Routes>
+            <Route path="/" element={<Home volume={volume} setVolume={setVolume} />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/articles" element={<Articles />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/image-test" element={<ImageGeneratorTest />} />
+          </Routes>
+        </Suspense>
       </div>
+      <AudioController
+        volume={volume}
+        setVolume={setVolume}
+        showVolumeControl={showVolumeControl}
+        handleVolumeControlEnter={handleVolumeControlEnter}
+        handleVolumeControlLeave={handleVolumeControlLeave}
+        toggleMute={toggleMute}
+      />
     </>
   )
 }
 
 function App() {
   return (
-    <Router>
+    <Router basename="/personal-website">
       <AppContent />
     </Router>
   )

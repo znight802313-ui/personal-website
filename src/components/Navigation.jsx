@@ -1,61 +1,16 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useMemo } from 'react'
 
-export default function Navigation({ hasEntered = true, onNavigate }) {
+export default function Navigation() {
   const location = useLocation()
-  const isHomePage = location.pathname === '/'
 
   const navItems = [
     { path: '/', label: '初见', icon: '🏠' },
-    { path: '/about', label: '灵魂解剖', icon: '✨' },
-    { path: '/articles', label: '思想档案', icon: '📮' },
+    { path: '/about', label: '我的档案', icon: '✨' },
+    { path: '/articles', label: '漫游手记', icon: '📮' },
     { path: '/portfolio', label: '宇宙陈列', icon: '🎨' },
   ]
 
-  // 为每个导航项生成随机位置
-  const randomPositions = useMemo(() =>
-    navItems.map(() => ({
-      x: Math.random() * 80 + 10,
-      y: Math.random() * 80 + 10,
-      rotate: Math.random() * 60 - 30
-    }))
-  , [])
-
-  // 如果是首页且未入场，显示随机分布的导航项
-  if (isHomePage && !hasEntered) {
-    return (
-      <>
-        {navItems.map((item, index) => (
-          <motion.div
-            key={item.path}
-            className="fixed z-40"
-            style={{
-              left: `${randomPositions[index].x}vw`,
-              top: `${randomPositions[index].y}vh`,
-              x: '-50%',
-              y: '-50%',
-            }}
-            initial={false}
-            animate={{
-              rotate: randomPositions[index].rotate,
-              opacity: 0.6,
-              scale: 0.8,
-            }}
-          >
-            <div className="bg-white/60 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-white/40 pointer-events-none">
-              <div className="flex items-center gap-2 font-handwriting text-lg text-earthBrown/90">
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </>
-    )
-  }
-
-  // 正常状态的导航栏
   return (
     <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-40">
       <motion.div
@@ -68,7 +23,7 @@ export default function Navigation({ hasEntered = true, onNavigate }) {
         <ul className="flex gap-8 items-center">
           {navItems.map((item) => (
             <li key={item.path}>
-              <Link to={item.path} onClick={onNavigate}>
+              <Link to={item.path}>
                 <motion.div
                   className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors font-handwriting text-lg ${
                     location.pathname === item.path
