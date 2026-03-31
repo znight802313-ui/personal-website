@@ -2,6 +2,7 @@ import { motion, useMotionValue, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import { generatedAssets } from '../assets/generatedAssets'
 import profilePhoto from '../assets/images/小王子风格照片.jpg'
+import homeBackground from '../assets/images/首页背景图.jpg'
 
 // 导入音效文件
 import gameSound from '../assets/sounds/game.mp3'
@@ -143,7 +144,7 @@ export default function Home({ volume, setVolume }) {
       <div
         className="fixed inset-0 -z-10"
         style={{
-          backgroundImage: `url(${generatedAssets.homeBackground})`,
+          backgroundImage: `url(${homeBackground})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           willChange: 'transform',

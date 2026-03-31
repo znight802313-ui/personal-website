@@ -77,6 +77,7 @@ export default function Portfolio() {
       <div className="fixed inset-0 -z-10" style={{ backgroundColor: 'rgba(255, 248, 240, 0.75)' }} />
 
       <div className="max-w-6xl mx-auto relative z-10">
+        <p className="text-center text-warmOrange font-rounded text-2xl mb-8">该页面正在更新维护中...</p>
         {/* 瀑布流网格 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[220px]">
           {works.map((work, i) => {

@@ -51,7 +51,7 @@ function AppContent() {
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-earthBrown/50 font-handwriting text-xl">加载中...</div>}>
           <Routes>
             <Route path="/" element={<Home volume={volume} setVolume={setVolume} />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/about" element={<About volume={volume} />} />
             <Route path="/articles" element={<Articles />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/image-test" element={<ImageGeneratorTest />} />

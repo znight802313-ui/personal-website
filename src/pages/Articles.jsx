@@ -1,12 +1,16 @@
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { useState, useRef } from 'react'
-import { generatedAssets } from '../assets/generatedAssets'
 import articlesBg from '../assets/images/漫游手记背景图.jpg'
+import coverReport from '../assets/images/短剧市场分析报告.jpg'
+import coverAiVsReal from '../assets/images/AI剧 vs 真人短剧：一场正在改变影视行业的巅峰对决.jpg'
+import coverVibeCoding from '../assets/images/Vibe Coding + OpenClaw：AI剧生成要变天了？聊聊我的观察和思考.jpg'
+import coverSanguo from '../assets/images/三国第一狠人.jpg'
 
 const categoryColors = {
-  '生活碎片': { bg: 'rgba(244,162,97,0.12)', text: '#F4A261', border: 'rgba(244,162,97,0.25)', glow: 'rgba(244,162,97,0.08)' },
-  '技术思考': { bg: 'rgba(156,175,136,0.12)', text: '#7A9A6B', border: 'rgba(156,175,136,0.25)', glow: 'rgba(156,175,136,0.08)' },
-  '短剧灵感': { bg: 'rgba(180,130,200,0.12)', text: '#A07AB8', border: 'rgba(180,130,200,0.25)', glow: 'rgba(180,130,200,0.08)' },
+  '行业分析': { bg: 'rgba(91,155,213,0.12)', text: '#5B9BD5', border: 'rgba(91,155,213,0.25)', glow: 'rgba(91,155,213,0.08)' },
+  '深度对比': { bg: 'rgba(244,162,97,0.12)', text: '#F4A261', border: 'rgba(244,162,97,0.25)', glow: 'rgba(244,162,97,0.08)' },
+  '前沿观察': { bg: 'rgba(156,175,136,0.12)', text: '#7A9A6B', border: 'rgba(156,175,136,0.25)', glow: 'rgba(156,175,136,0.08)' },
+  'AI剧本': { bg: 'rgba(180,130,200,0.12)', text: '#A07AB8', border: 'rgba(180,130,200,0.25)', glow: 'rgba(180,130,200,0.08)' },
 }
 
 // 3D 倾斜卡片组件
@@ -68,51 +72,39 @@ export default function Articles() {
   const articles = [
     {
       id: 1,
-      title: '在 214 国道上遇见的那些生命',
-      category: '生活碎片',
-      date: '2024.03.15',
-      excerpt: '狼毒花开满山坡，黑颈鹤在湖边起舞，那一刻我明白了什么叫做生命的力量...',
-      coverImage: generatedAssets.road214Scenery,
+      title: '短剧市场深度分析报告',
+      category: '行业分析',
+      date: '2026.03.01',
+      excerpt: '从市场规模、用户画像到商业模式，全面拆解短剧行业的现状与未来趋势...',
+      coverImage: coverReport,
+      link: 'https://hcnigi1upsb5.feishu.cn/wiki/Q6CywdM0AiDyNHkQj4PcNJPOnNe?from=from_copylink',
     },
     {
       id: 2,
-      title: 'React 中的状态管理哲学',
-      category: '技术思考',
-      date: '2024.02.28',
-      excerpt: '从 Redux 到 Zustand，从 Context 到 Jotai，我们真的需要这么多状态管理工具吗？',
-      coverImage: generatedAssets.articleTechCover,
+      title: 'AI剧 vs 真人短剧：一场正在改变影视行业的巅峰对决',
+      category: '深度对比',
+      date: '2026.03.08',
+      excerpt: '当AI生成的剧情视频开始与真人短剧同台竞技，影视行业的格局正在被重新定义...',
+      coverImage: coverAiVsReal,
+      link: 'https://hcnigi1upsb5.feishu.cn/wiki/JkAAwurKciEfkdke6F8cj2tbnFb?from=from_copylink',
     },
     {
       id: 3,
-      title: '短剧《平行时空的你》创作手记',
-      category: '短剧灵感',
-      date: '2024.01.20',
-      excerpt: '如果在另一个时空，我们会做出不同的选择吗？这个问题困扰了我很久...',
-      coverImage: generatedAssets.articleLifeCover,
+      title: '三国第一狠人',
+      category: 'AI剧本',
+      date: '2026.03.28',
+      excerpt: '三国第一狠人AI直出剧本，包括中间态文件：IP核心解构和分集集纲、完整剧本正文...',
+      coverImage: coverSanguo,
+      link: 'https://hcnigi1upsb5.feishu.cn/wiki/DOTawW3Sgi3Yy2k7xCQcnAtHnlf?from=from_copylink',
     },
     {
       id: 4,
-      title: '手作的温度：一件陶器的诞生',
-      category: '生活碎片',
-      date: '2023.12.10',
-      excerpt: '从泥土到陶器，每一次触碰都是与自然的对话，每一个纹理都是时间的印记...',
-      coverImage: generatedAssets.handmadePottery,
-    },
-    {
-      id: 5,
-      title: 'AI 视听创作的未来想象',
-      category: '技术思考',
-      date: '2023.11.05',
-      excerpt: '当 AI 可以生成图像、视频、音乐，创作者的价值在哪里？我们又该如何定义艺术？',
-      coverImage: generatedAssets.articleTechCover,
-    },
-    {
-      id: 6,
-      title: '蔡文姬的琴声与我的游戏人生',
-      category: '生活碎片',
-      date: '2023.10.18',
-      excerpt: '在王者峡谷里，我找到了属于自己的节奏，胡笳琴的每一个音符都是治愈...',
-      coverImage: generatedAssets.vinylRecord,
+      title: 'Vibe Coding + OpenClaw：AI剧生成要变天了？聊聊我的观察和思考',
+      category: '前沿观察',
+      date: '2026.03.29',
+      excerpt: '积极拥抱Vibe Coding与OpenClaw等前沿工具，AI剧的生产方式正在迎来一场革命...',
+      coverImage: coverVibeCoding,
+      link: 'https://hcnigi1upsb5.feishu.cn/wiki/PG7dwseTUim1T6kxLHechGganUc?from=from_copylink',
     },
   ]
 
@@ -165,6 +157,7 @@ export default function Articles() {
                 }}
                 onHoverStart={() => setHoveredId(article.id)}
                 onHoverEnd={() => setHoveredId(null)}
+                onClick={() => article.link && window.open(article.link, '_blank')}
               >
                 {/* 封面图 */}
                 {article.coverImage && (

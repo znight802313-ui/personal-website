@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { generatedAssets } from '../assets/generatedAssets'
 import aboutBg from '../assets/images/我的档案背景图.jpeg'
 import avatarImg from '../assets/images/头像.jpg'
@@ -13,12 +13,56 @@ import imgXiaojing3 from '../assets/images/小经图片3.png'
 import imgXiaojing4 from '../assets/images/小经图片4.jpg'
 import imgDigitalHero1 from '../assets/images/数字英雄1.jpg'
 import imgDigitalHero2 from '../assets/images/数字英雄2.jpg'
+import imgMusic from '../assets/images/音乐.jpg'
+import imgDriving from '../assets/images/自驾游.jpg'
+import idealSong from '../assets/sounds/陈鸿宇-理想三旬.mp3'
 
-export default function About() {
+export default function About({ volume = 0.5 }) {
   const [expandedMilestone, setExpandedMilestone] = useState(0)
   const [hoveredAbility, setHoveredAbility] = useState(null)
   const [hoveredSkill, setHoveredSkill] = useState(null)
   const [lightboxImg, setLightboxImg] = useState(null)
+  const [musicPlaying, setMusicPlaying] = useState(false)
+  const [musicProgress, setMusicProgress] = useState(0)
+  const [musicHovered, setMusicHovered] = useState(false)
+  const audioRef = useRef(null)
+  const progressTimer = useRef(null)
+
+  // 音乐播放器逻辑
+  const toggleMusic = useCallback(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(idealSong)
+      audioRef.current.volume = volume
+      audioRef.current.addEventListener('ended', () => {
+        setMusicPlaying(false)
+        setMusicProgress(0)
+      })
+    }
+    if (musicPlaying) {
+      audioRef.current.pause()
+      clearInterval(progressTimer.current)
+    } else {
+      audioRef.current.play()
+      progressTimer.current = setInterval(() => {
+        if (audioRef.current) {
+          setMusicProgress((audioRef.current.currentTime / audioRef.current.duration) * 100 || 0)
+        }
+      }, 200)
+    }
+    setMusicPlaying(!musicPlaying)
+  }, [musicPlaying, volume])
+
+  // 音量同步
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume
+  }, [volume])
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+      clearInterval(progressTimer.current)
+    }
+  }, [])
 
   // ========== 数据定义 ==========
   const skills = [
@@ -32,9 +76,9 @@ export default function About() {
   ]
 
   const lifeStatus = [
-    { icon: generatedAssets.vinylRecord, title: '听歌', subtitle: '最近在听', color: 'from-pink-200/60 to-pink-100/40', detail: '陈鸿宇 · 理想三旬', isImage: true },
+    { icon: imgMusic, title: '听歌', subtitle: '最近在听', color: 'from-pink-200/60 to-pink-100/40', detail: '陈鸿宇 · 理想三旬', isImage: true },
     { icon: '🎮', title: '游戏', subtitle: '王者荣耀', color: 'from-purple-200/60 to-purple-100/40', detail: '射手 · 打野' },
-    { icon: generatedAssets.campingTent, title: '自驾游', subtitle: '下一站', color: 'from-blue-200/60 to-blue-100/40', detail: '青甘线', isImage: true },
+    { icon: imgDriving, title: '自驾游', subtitle: '下一站', color: 'from-blue-200/60 to-blue-100/40', detail: '青甘线', isImage: true },
     { icon: '📖', title: '小说', subtitle: '最近在追', color: 'from-green-200/60 to-green-100/40', detail: '我在风花雪月里等你' },
     { icon: '🎬', title: '动漫', subtitle: '最近在追', color: 'from-orange-200/60 to-orange-100/40', detail: '凡人修仙传 · 剑来' },
   ]
@@ -116,7 +160,7 @@ export default function About() {
       year: 2025,
       title: '首个AI剧情视频',
       desc: '独立制作AI剧情短视频，获得9000+点赞和5000+转发',
-      link: 'https://hcnigi1upsb5.feishu.cn/wiki/OlLqwOFwFiju3rk6m09cHXyknTc',
+      link: 'https://v.douyin.com/rBdJobbzFXI/',
     },
     {
       year: 2022,
@@ -931,53 +975,118 @@ export default function About() {
 
             {/* 生活状态卡片 */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-5 mb-6">
-              {lifeStatus.map((status, i) => (
+              {lifeStatus.map((status, i) => {
+                const isMusic = status.title === '听歌'
+                const flipped = isMusic && (musicHovered || musicPlaying)
+                return (
                 <motion.div
                   key={status.title}
-                  className="group relative rounded-2xl overflow-hidden cursor-pointer"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(255,255,255,0.4)',
-                  }}
+                  className="relative cursor-pointer"
+                  style={{ perspective: 800 }}
                   initial={{ y: 30, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 + i * 0.1, duration: 0.5 }}
-                  whileHover={{
-                    y: -8,
-                    scale: 1.04,
-                    boxShadow: '0 20px 50px rgba(244,162,97,0.15)',
-                    transition: { type: 'spring', stiffness: 300, damping: 15 }
-                  }}
+                  onMouseEnter={() => isMusic && setMusicHovered(true)}
+                  onMouseLeave={() => isMusic && setMusicHovered(false)}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${status.color} rounded-2xl`} />
                   <motion.div
-                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{ background: 'radial-gradient(circle at 50% 50%, rgba(244,162,97,0.12) 0%, transparent 70%)' }}
-                  />
-                  <div className="relative p-5">
-                    {status.isImage ? (
-                      <motion.div
-                        className="w-16 h-16 mb-3 rounded-xl overflow-hidden shadow-lg"
-                        whileHover={{ rotate: [0, -5, 5, 0] }}
-                        transition={{ duration: 0.4 }}
+                    className="relative w-full"
+                    style={{ transformStyle: 'preserve-3d' }}
+                    animate={{ rotateY: flipped ? 180 : 0 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 25 }}
+                  >
+                    {/* 正面 — 原卡片 */}
+                    <div
+                      className="group relative rounded-2xl overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255,255,255,0.4)',
+                        backfaceVisibility: 'hidden',
+                      }}
+                    >
+                      <div className={`absolute inset-0 bg-gradient-to-br ${status.color} rounded-2xl`} />
+                      <div className="relative p-5">
+                        {status.isImage ? (
+                          <motion.div
+                            className="w-16 h-16 mb-3 rounded-xl overflow-hidden shadow-lg"
+                            whileHover={{ rotate: [0, -5, 5, 0] }}
+                            transition={{ duration: 0.4 }}
+                          >
+                            <img src={status.icon} alt={status.title} className="w-full h-full object-cover" />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            className="text-4xl mb-3"
+                            whileHover={{ scale: 1.2, rotate: 10 }}
+                            transition={{ type: 'spring', stiffness: 400 }}
+                          >{status.icon}</motion.div>
+                        )}
+                        <h3 className="font-handwriting text-xl text-earthBrown mb-1">{status.title}</h3>
+                        <p className="text-sm text-earthBrown/60 font-rounded">{status.subtitle}</p>
+                        <p className="text-xs text-earthBrown/45 mt-2 font-rounded">{status.detail}</p>
+                      </div>
+                    </div>
+
+                    {/* 背面 — 音乐播放器（仅听歌卡片） */}
+                    {isMusic && (
+                      <div
+                        className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col items-center justify-center"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,240,230,0.9) 0%, rgba(255,220,200,0.85) 100%)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.5)',
+                          backfaceVisibility: 'hidden',
+                          transform: 'rotateY(180deg)',
+                        }}
                       >
-                        <img src={status.icon} alt={status.title} className="w-full h-full object-cover" />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        className="text-4xl mb-3"
-                        whileHover={{ scale: 1.2, rotate: 10 }}
-                        transition={{ type: 'spring', stiffness: 400 }}
-                      >{status.icon}</motion.div>
+                        <div className="flex flex-col items-center gap-2 p-4 w-full">
+                          {/* 旋转唱片 */}
+                          <motion.div
+                            className="w-14 h-14 rounded-full overflow-hidden shadow-lg ring-2 ring-white/40"
+                            animate={musicPlaying ? { rotate: 360 } : {}}
+                            transition={musicPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}
+                          >
+                            <img src={imgMusic} alt="album" className="w-full h-full object-cover" />
+                          </motion.div>
+                          <div className="text-center">
+                            <p className="text-sm font-handwriting text-earthBrown">理想三旬</p>
+                            <p className="text-[10px] text-earthBrown/50 font-rounded">陈鸿宇</p>
+                          </div>
+                          {/* 播放/暂停 */}
+                          <motion.button
+                            className="w-9 h-9 rounded-full flex items-center justify-center shadow-md"
+                            style={{ background: 'linear-gradient(135deg, #FF9B71, #F4A261)' }}
+                            whileHover={{ scale: 1.15 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => { e.stopPropagation(); toggleMusic() }}
+                          >
+                            {musicPlaying ? (
+                              <svg width="10" height="12" viewBox="0 0 10 12" fill="white">
+                                <rect x="1" y="0" width="3" height="12" rx="1" />
+                                <rect x="6" y="0" width="3" height="12" rx="1" />
+                              </svg>
+                            ) : (
+                              <svg width="10" height="12" viewBox="0 0 10 12" fill="white">
+                                <path d="M1 1 L9 6 L1 11Z" />
+                              </svg>
+                            )}
+                          </motion.button>
+                          {/* 进度条 */}
+                          <div className="w-4/5 h-1 rounded-full bg-earthBrown/10 overflow-hidden">
+                            <motion.div
+                              className="h-full rounded-full"
+                              style={{ width: `${musicProgress}%`, background: 'linear-gradient(90deg, #FF9B71, #F4A261)' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     )}
-                    <h3 className="font-handwriting text-xl text-earthBrown mb-1">{status.title}</h3>
-                    <p className="text-sm text-earthBrown/60 font-rounded">{status.subtitle}</p>
-                    <p className="text-xs text-earthBrown/45 mt-2 font-rounded">{status.detail}</p>
-                  </div>
+                  </motion.div>
                 </motion.div>
-              ))}
+                )
+              })}
             </div>
           </motion.div>
 
